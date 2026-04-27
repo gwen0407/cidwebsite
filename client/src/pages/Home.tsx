@@ -79,7 +79,21 @@ export default function Home() {
               </Button>
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => window.location.href = getLoginUrl()} className="hover:bg-primary/10 transition-all duration-300">Sign In</Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    const url = getLoginUrl();
+                    if (url.startsWith("#error")) {
+                      toast.error("Login is currently unavailable. Please contact support.");
+                    } else {
+                      window.location.href = url;
+                    }
+                  }} 
+                  className="hover:bg-primary/10 transition-all duration-300"
+                >
+                  Sign In
+                </Button>
                 <Button size="sm" onClick={handleGetStarted} className="hover:shadow-lg transition-all duration-300">Get Started</Button>
               </>
             )}
