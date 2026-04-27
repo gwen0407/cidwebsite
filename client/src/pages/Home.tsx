@@ -58,7 +58,7 @@ export default function Home() {
       {/* ================================================================
           NAVIGATION
       ================================================================ */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-md">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-md animate-in fade-in duration-500">
         <div className="container flex h-16 items-center justify-between">
           <a href="/" className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
@@ -68,8 +68,8 @@ export default function Home() {
           </a>
 
           <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-muted-foreground">
-            <a href="#services" className="hover:text-foreground transition-colors">Services</a>
-            <a href="#testimonials" className="hover:text-foreground transition-colors">Testimonials</a>
+              <a href="#services" className="hover:text-foreground transition-colors duration-300 hover:underline">Services</a>
+            <a href="#testimonials" className="hover:text-foreground transition-colors duration-300 hover:underline">Testimonials</a>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -79,8 +79,8 @@ export default function Home() {
               </Button>
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => window.location.href = getLoginUrl()}>Sign In</Button>
-                <Button size="sm" onClick={handleGetStarted}>Get Started</Button>
+                <Button variant="ghost" size="sm" onClick={() => window.location.href = getLoginUrl()} className="hover:bg-primary/10 transition-all duration-300">Sign In</Button>
+                <Button size="sm" onClick={handleGetStarted} className="hover:shadow-lg transition-all duration-300">Get Started</Button>
               </>
             )}
           </div>
@@ -90,7 +90,7 @@ export default function Home() {
       {/* ================================================================
           HERO
       ================================================================ */}
-      <section className="relative pt-32 pb-24 overflow-hidden">
+      <section className="relative pt-32 pb-24 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
         {/* Background decoration */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-primary/5 blur-3xl" />
@@ -103,7 +103,7 @@ export default function Home() {
               Virtual Assistant Services
             </Badge>
 
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-[1.1] tracking-tight">
               Your Virtual Assistant,{" "}
               <span className="relative">
                 <span className="relative z-10" style={{
@@ -115,20 +115,20 @@ export default function Home() {
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
               Delegate your most time-consuming tasks to a dedicated virtual assistant team. Reclaim your time, reduce stress, and focus on what truly matters.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" className="px-8 h-12 text-base shadow-lg" onClick={handleGetStarted}>
+              <Button size="lg" className="px-6 sm:px-8 h-11 sm:h-12 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" onClick={handleGetStarted}>
                 Get Started Today <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button variant="outline" size="lg" className="px-8 h-12 text-base" asChild>
+              <Button variant="outline" size="lg" className="px-6 sm:px-8 h-11 sm:h-12 text-sm sm:text-base hover:bg-primary/5 transition-all duration-300" asChild>
                 <a href="#services">Explore Services</a>
               </Button>
             </div>
 
-            <div className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground">
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-muted-foreground">
               <div className="flex items-center gap-2"><Zap className="h-4 w-4 text-secondary" /><span>Fast onboarding</span></div>
               <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-secondary" /><span>100% confidential</span></div>
               <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-secondary" /><span>Flexible hours</span></div>
@@ -140,17 +140,17 @@ export default function Home() {
       {/* ================================================================
           SERVICES
       ================================================================ */}
-      <section id="services" className="py-24 bg-muted/30">
+      <section id="services" className="py-24 bg-muted/30 animate-in fade-in duration-700 delay-200">
         <div className="container">
-          <div className="text-center mb-14">
+          <div className="text-center mb-14 px-4 sm:px-0">
             <Badge variant="outline" className="mb-4 text-xs font-medium uppercase tracking-wide">What We Do</Badge>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Everything You Need, Done Right</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">From inbox management to creative design, our virtual assistants handle it all with expertise and care.</p>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">Everything You Need, Done Right</h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">From inbox management to creative design, our virtual assistants handle it all with expertise and care.</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((s) => (
-              <div key={s.title} className="group bg-card rounded-2xl p-7 border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300">
+            {services.map((s, idx) => (
+              <div key={s.title} className="group bg-card rounded-2xl p-7 border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${100 + idx * 50}ms` }}>
                 <div className="h-11 w-11 rounded-xl bg-primary/8 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors">
                   <s.icon className="h-5 w-5 text-primary" />
                 </div>
@@ -165,17 +165,17 @@ export default function Home() {
       {/* ================================================================
           TESTIMONIALS
       ================================================================ */}
-      <section id="testimonials" className="py-24">
+      <section id="testimonials" className="py-24 animate-in fade-in duration-700 delay-300">
         <div className="container">
-          <div className="text-center mb-14">
+          <div className="text-center mb-14 px-4 sm:px-0">
             <Badge variant="outline" className="mb-4 text-xs font-medium uppercase tracking-wide">Testimonials</Badge>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">What Our Clients Say</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Trusted by entrepreneurs and business leaders worldwide.</p>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">What Our Clients Say</h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">Trusted by entrepreneurs and business leaders worldwide.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((t) => (
-              <div key={t.name} className="bg-card rounded-2xl p-7 border border-border hover:shadow-md transition-all">
+            {testimonials.map((t, idx) => (
+              <div key={t.name} className="bg-card rounded-2xl p-7 border border-border hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${150 + idx * 100}ms` }}>
                 <div className="flex gap-0.5 mb-4">
                   {Array.from({ length: t.rating }).map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-secondary text-secondary" />
@@ -195,7 +195,7 @@ export default function Home() {
       {/* ================================================================
           CTA BANNER
       ================================================================ */}
-      <section className="py-20">
+      <section className="py-20 animate-in fade-in duration-700 delay-300">
         <div className="container">
           <div className="relative rounded-3xl bg-primary px-8 py-16 text-center overflow-hidden">
             <div className="absolute inset-0 -z-0 overflow-hidden">
@@ -205,7 +205,7 @@ export default function Home() {
             <div className="relative z-10">
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-primary-foreground mb-4">Ready to Reclaim Your Time?</h2>
               <p className="text-primary-foreground/75 mb-8 max-w-xl mx-auto">Join hundreds of leaders who have optimized their workflows with Consider It Done.</p>
-              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-10 h-12 text-base shadow-lg" onClick={handleGetStarted}>
+              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-10 h-12 text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" onClick={handleGetStarted}>
                 Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -216,7 +216,7 @@ export default function Home() {
       {/* ================================================================
           FOOTER
       ================================================================ */}
-      <footer className="border-t border-border py-12">
+      <footer className="border-t border-border py-12 animate-in fade-in duration-700 delay-300">
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
@@ -227,18 +227,18 @@ export default function Home() {
             </div>
 
             <nav className="flex items-center gap-8 text-sm text-muted-foreground">
-              <a href="#services" className="hover:text-foreground transition-colors">Services</a>
-              <a href="#testimonials" className="hover:text-foreground transition-colors">Testimonials</a>
+              <a href="#services" className="hover:text-foreground transition-colors duration-300 hover:underline">Services</a>
+              <a href="#testimonials" className="hover:text-foreground transition-colors duration-300 hover:underline">Testimonials</a>
             </nav>
 
             <div className="flex items-center gap-4">
-              <a href="#" className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all">
+              <a href="#" className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all duration-300 hover:scale-110 hover:bg-primary/5">
                 <Instagram className="h-4 w-4" />
               </a>
-              <a href="#" className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all">
+              <a href="#" className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all duration-300 hover:scale-110 hover:bg-primary/5">
                 <Facebook className="h-4 w-4" />
               </a>
-              <a href="#" className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all">
+              <a href="#" className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all duration-300 hover:scale-110 hover:bg-primary/5">
                 <Linkedin className="h-4 w-4" />
               </a>
             </div>

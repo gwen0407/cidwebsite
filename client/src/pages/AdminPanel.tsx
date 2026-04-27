@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { BarChart2, ClipboardList, LayoutDashboard, Plus, Users } from "lucide-react";
+import { BarChart2, ClipboardList, LayoutDashboard, Plus, Users, Clock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -56,8 +56,37 @@ function AdminContent() {
     onError: (e) => toast.error(e.message),
   });
 
+  // Add shift form
+  const [shiftEmpId, setShiftEmpId] = useState<string>("");
+  const [shiftStartTime, setShiftStartTime] = useState("");
+  const [shiftEndTime, setShiftEndTime] = useState("");
+  const addShiftMutation = trpc.shifts.add.useMutation({
+    onSuccess: () => {
+      setShiftEmpId("");
+      setShiftStartTime("");
+      setShiftEndTime("");
+      toast.success("Shift scheduled successfully!");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleAddShift = () => {
+    if (!shiftEmpId || !shiftStartTime || !shiftEndTime) return;
+    const startDate = new Date(shiftStartTime);
+    const endDate = new Date(shiftEndTime);
+    if (endDate <= startDate) {
+      toast.error("End time must be after start time");
+      return;
+    }
+    addShiftMutation.mutate({
+      employeeId: parseInt(shiftEmpId),
+      startTime: startDate.getTime(),
+      endTime: endDate.getTime(),
+    });
+  };
+
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-8 max-w-6xl">
       {/* Header stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <Card className="border-border shadow-sm">
@@ -74,7 +103,7 @@ function AdminContent() {
         </Card>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8">
         {/* Add Employee */}
         <Card className="border-border shadow-sm">
           <CardHeader className="pb-4">
@@ -157,6 +186,61 @@ function AdminContent() {
             >
               <Plus className="h-4 w-4" />
               Assign Task
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Schedule Shift */}
+        <Card className="border-border shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Clock className="h-4.5 w-4.5 text-primary" />
+              Schedule Shift
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Employee</Label>
+              <Select value={shiftEmpId} onValueChange={setShiftEmpId}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees?.map((emp) => (
+                    <SelectItem key={emp.id} value={String(emp.id)}>
+                      {emp.name || emp.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="shift-start" className="text-sm font-medium">Start Time</Label>
+              <Input
+                id="shift-start"
+                type="datetime-local"
+                value={shiftStartTime}
+                onChange={(e) => setShiftStartTime(e.target.value)}
+                className="h-10"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="shift-end" className="text-sm font-medium">End Time</Label>
+              <Input
+                id="shift-end"
+                type="datetime-local"
+                value={shiftEndTime}
+                onChange={(e) => setShiftEndTime(e.target.value)}
+                className="h-10"
+              />
+            </div>
+            <Button
+              className="w-full gap-2"
+              onClick={handleAddShift}
+              disabled={!shiftEmpId || !shiftStartTime || !shiftEndTime || addShiftMutation.isPending}
+            >
+              <Plus className="h-4 w-4" />
+              Schedule Shift
             </Button>
           </CardContent>
         </Card>

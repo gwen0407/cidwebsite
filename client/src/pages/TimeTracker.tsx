@@ -47,11 +47,13 @@ function TimeTrackerContent() {
     refetchInterval: 30_000,
   });
   const { data: logs, isLoading: logsLoading } = trpc.timeLogs.myLogs.useQuery();
+  const { data: activeShift, isLoading: shiftLoading } = trpc.shifts.active.useQuery();
 
   const clockInMutation = trpc.timeLogs.clockIn.useMutation({
     onSuccess: () => {
       utils.timeLogs.activeSession.invalidate();
       utils.timeLogs.myLogs.invalidate();
+      utils.shifts.active.invalidate();
       toast.success("Clocked in successfully!");
     },
     onError: (e) => toast.error(e.message),
@@ -61,6 +63,7 @@ function TimeTrackerContent() {
     onSuccess: () => {
       utils.timeLogs.activeSession.invalidate();
       utils.timeLogs.myLogs.invalidate();
+      utils.shifts.active.invalidate();
       toast.success("Clocked out. Session saved!");
     },
     onError: (e) => toast.error(e.message),
@@ -76,7 +79,7 @@ function TimeTrackerContent() {
 
   const totalHours = logs?.reduce((sum, l) => sum + (l.hoursWorked ?? 0), 0) ?? 0;
 
-  if (sessionLoading || logsLoading) {
+  if (sessionLoading || logsLoading || shiftLoading) {
     return (
       <div className="space-y-6 max-w-3xl">
         <Skeleton className="h-48 rounded-2xl" />
@@ -110,7 +113,8 @@ function TimeTrackerContent() {
                 size="lg"
                 className="px-10 h-11 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={() => clockInMutation.mutate()}
-                disabled={clockInMutation.isPending}
+                disabled={clockInMutation.isPending || !activeShift}
+                title={!activeShift ? "You can only clock in during your scheduled shift" : ""}
               >
                 <Play className="h-4 w-4 fill-current" />
                 Clock In
@@ -139,6 +143,13 @@ function TimeTrackerContent() {
               <p className="text-xs text-muted-foreground mt-1">Sessions recorded</p>
             </div>
           </div>
+
+          {!activeShift && !activeSession && (
+            <div className="mt-6 pt-5 border-t border-border bg-amber-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
+              <p className="text-sm text-amber-900 font-medium">No active shift scheduled</p>
+              <p className="text-xs text-amber-700 mt-1">You can only clock in during your scheduled shift hours. Contact your admin to schedule a shift.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
