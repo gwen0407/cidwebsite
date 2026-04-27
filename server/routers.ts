@@ -46,6 +46,16 @@ const employeeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     }
   }
 
+  // Auto-create: if still no employee record, create one for this user
+  if (!employee && ctx.user.email && ctx.user.name) {
+    await addEmployee({
+      name: ctx.user.name,
+      email: ctx.user.email,
+      userId: ctx.user.id,
+    });
+    employee = await getEmployeeByUserId(ctx.user.id);
+  }
+
   if (!employee) {
     throw new TRPCError({ code: "FORBIDDEN", message: "Employee record not found for this user" });
   }

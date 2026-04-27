@@ -44,41 +44,41 @@
 }
 
 :root {
-  /* Brand: deep navy + warm gold */
-  --primary: oklch(0.26 0.07 255);
-  --primary-foreground: oklch(0.97 0.005 240);
-  --secondary: oklch(0.82 0.12 85);
-  --secondary-foreground: oklch(0.18 0.04 85);
-  --accent: oklch(0.82 0.12 85);
-  --accent-foreground: oklch(0.18 0.04 85);
-  --sidebar-primary: oklch(0.82 0.12 85);
-  --sidebar-primary-foreground: oklch(0.18 0.04 85);
-  --chart-1: oklch(0.26 0.07 255);
-  --chart-2: oklch(0.82 0.12 85);
+  /* Brand: deep navy + vibrant gold + emerald accents */
+  --primary: oklch(0.24 0.09 260);
+  --primary-foreground: oklch(0.98 0.002 240);
+  --secondary: oklch(0.85 0.16 85);
+  --secondary-foreground: oklch(0.15 0.04 85);
+  --accent: oklch(0.55 0.18 165);
+  --accent-foreground: oklch(0.98 0.002 240);
+  --sidebar-primary: oklch(0.85 0.16 85);
+  --sidebar-primary-foreground: oklch(0.15 0.04 85);
+  --chart-1: oklch(0.24 0.09 260);
+  --chart-2: oklch(0.85 0.16 85);
   --chart-3: oklch(0.55 0.18 165);
-  --chart-4: oklch(0.65 0.2 30);
-  --chart-5: oklch(0.72 0.15 300);
+  --chart-4: oklch(0.68 0.22 30);
+  --chart-5: oklch(0.75 0.18 300);
   --radius: 0.65rem;
-  --background: oklch(0.985 0.003 240);
-  --foreground: oklch(0.15 0.025 250);
+  --background: oklch(0.988 0.003 240);
+  --foreground: oklch(0.14 0.03 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.025 250);
+  --card-foreground: oklch(0.14 0.03 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.025 250);
-  --muted: oklch(0.94 0.005 240);
-  --muted-foreground: oklch(0.52 0.02 250);
+  --popover-foreground: oklch(0.14 0.03 250);
+  --muted: oklch(0.92 0.006 240);
+  --muted-foreground: oklch(0.54 0.025 250);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.88 0.008 240);
-  --input: oklch(0.88 0.008 240);
+  --border: oklch(0.85 0.01 240);
+  --input: oklch(0.85 0.01 240);
   --ring: oklch(0.26 0.07 255);
-  /* Sidebar — deep navy */
-  --sidebar: oklch(0.18 0.04 255);
-  --sidebar-foreground: oklch(0.92 0.01 240);
-  --sidebar-accent: oklch(0.26 0.06 255);
-  --sidebar-accent-foreground: oklch(0.92 0.01 240);
-  --sidebar-border: oklch(0.28 0.05 255);
-  --sidebar-ring: oklch(0.82 0.12 85);
+  /* Sidebar — deep navy with vibrant accent */
+  --sidebar: oklch(0.16 0.05 260);
+  --sidebar-foreground: oklch(0.93 0.01 240);
+  --sidebar-accent: oklch(0.24 0.08 260);
+  --sidebar-accent-foreground: oklch(0.93 0.01 240);
+  --sidebar-border: oklch(0.26 0.06 260);
+  --sidebar-ring: oklch(0.85 0.16 85);
 }
 
 .dark {
@@ -142,6 +142,86 @@
 }
 
 @layer components {
+  /* Smooth page transitions */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideInUp 0.6s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slideInDown 0.5s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  /* Smooth transitions for interactive elements */
+  button, [role="button"], a, input, textarea, select {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  /* Enhanced button hover effects */
+  button:not(:disabled), [role="button"]:not([aria-disabled="true"]) {
+    @apply hover:shadow-md;
+  }
+
+  /* Smooth card transitions */
+  .card {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .card:hover {
+    @apply shadow-lg;
+  }
+
   /**
    * Custom container utility that centers content and adds responsive padding.
    *
