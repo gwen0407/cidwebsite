@@ -19,9 +19,10 @@ import {
   listTasksByEmployee,
   listTimeLogsByEmployee,
   markTaskComplete,
-  getActiveShift,
-  listShiftsByEmployee,
   addShift,
+  deleteShift,
+  listShiftsByEmployee,
+  hasActiveShift,
 } from "./db";
 
 // ---------------------------------------------------------------------------
@@ -49,18 +50,16 @@ const employeeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     }
   }
 
-  // Auto-create: if still no employee record, create one for this user
-  if (!employee && ctx.user.email && ctx.user.name) {
-    await addEmployee({
-      name: ctx.user.name,
-      email: ctx.user.email,
-      userId: ctx.user.id,
-    });
-    employee = await getEmployeeByUserId(ctx.user.id);
-  }
-
   if (!employee) {
     throw new TRPCError({ code: "FORBIDDEN", message: "Employee record not found for this user" });
+  }
+
+  // Shift check: only allow if employee has an active shift (unless admin)
+  if (ctx.user.role !== "admin") {
+    const activeShift = await hasActiveShift(employee.id);
+    if (!activeShift) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "You do not have an active shift at this time." });
+    }
   }
 
   return next({ ctx: { ...ctx, employee } });
@@ -96,6 +95,32 @@ export const appRouter = router({
         const existing = await getEmployeeByEmail(input.email);
         if (existing) throw new TRPCError({ code: "CONFLICT", message: "Employee already exists" });
         await addEmployee({ email: input.email, name: input.name ?? null });
+        return { success: true };
+      }),
+
+    // Shift management
+    addShift: adminProcedure
+      .input(z.object({
+        employeeId: z.number().int(),
+        dayOfWeek: z.number().int().min(0).max(6),
+        startTime: z.string().regex(/^\d{2}:\d{2}$/),
+        endTime: z.string().regex(/^\d{2}:\d{2}$/),
+      }))
+      .mutation(async ({ input }) => {
+        await addShift(input);
+        return { success: true };
+      }),
+
+    listShifts: adminProcedure
+      .input(z.object({ employeeId: z.number().int() }))
+      .query(async ({ input }) => {
+        return listShiftsByEmployee(input.employeeId);
+      }),
+
+    deleteShift: adminProcedure
+      .input(z.object({ shiftId: z.number().int() }))
+      .mutation(async ({ input }) => {
+        await deleteShift(input.shiftId);
         return { success: true };
       }),
   }),
@@ -144,12 +169,6 @@ export const appRouter = router({
   timeLogs: router({
     // Employee: clock in
     clockIn: employeeProcedure.mutation(async ({ ctx }) => {
-      // Shift check: Employee should not login (clock in) if they don't have a shift
-      const shift = await getActiveShift(ctx.employee.id);
-      if (!shift) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "You cannot clock in because you do not have an active shift scheduled right now." });
-      }
-
       const active = await getActiveTimeLog(ctx.employee.id);
       if (active) throw new TRPCError({ code: "BAD_REQUEST", message: "Already clocked in" });
       const logId = await clockIn(ctx.employee.id);
@@ -179,33 +198,6 @@ export const appRouter = router({
       .input(z.object({ startDate: z.date().optional(), endDate: z.date().optional() }).optional())
       .query(async ({ input }) => {
         return listAllTimeLogs(input);
-      }),
-  }),
-
-  // -------------------------------------------------------------------------
-  // Shifts
-  // -------------------------------------------------------------------------
-  shifts: router({
-    // Employee: check active shift
-    active: employeeProcedure.query(async ({ ctx }) => {
-      return (await getActiveShift(ctx.employee.id)) ?? null;
-    }),
-
-    // Employee: own shift history
-    myShifts: employeeProcedure.query(async ({ ctx }) => {
-      return listShiftsByEmployee(ctx.employee.id);
-    }),
-
-    // Admin: add shift
-    add: adminProcedure
-      .input(z.object({
-        employeeId: z.number().int(),
-        startTime: z.number(),
-        endTime: z.number(),
-      }))
-      .mutation(async ({ input }) => {
-        await addShift(input);
-        return { success: true };
       }),
   }),
 });

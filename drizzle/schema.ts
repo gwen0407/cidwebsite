@@ -15,7 +15,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin", "employee"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -75,8 +75,9 @@ export type InsertTimeLog = typeof timeLogs.$inferInsert;
 export const shifts = mysqlTable("shifts", {
   id: int("id").autoincrement().primaryKey(),
   employeeId: int("employeeId").notNull(),
-  startTime: bigint("startTime", { mode: "number" }).notNull(), // UTC ms
-  endTime: bigint("endTime", { mode: "number" }).notNull(),   // UTC ms
+  dayOfWeek: int("dayOfWeek").notNull(), // 0-6 (Sunday-Saturday)
+  startTime: varchar("startTime", { length: 5 }).notNull(), // "HH:mm"
+  endTime: varchar("endTime", { length: 5 }).notNull(),   // "HH:mm"
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

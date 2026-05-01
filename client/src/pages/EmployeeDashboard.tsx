@@ -3,11 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, ClipboardList, Clock, LayoutDashboard, Timer, Play, Square, ExternalLink } from "lucide-react";
+import { CheckCircle2, ClipboardList, Clock, LayoutDashboard, Timer, Play, Square } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { NavItem } from "@/components/AppLayout";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState, useEffect } from "react";
 
 const employeeNav: NavItem[] = [
   { icon: LayoutDashboard, label: "My Tasks", path: "/dashboard" },
@@ -16,149 +16,47 @@ const employeeNav: NavItem[] = [
 
 export default function EmployeeDashboard() {
   return (
-    <AppLayout navItems={employeeNav} title="Quo Dashboard">
-      <div className="space-y-8 max-w-3xl">
-        <WixLoginBanner />
-        <ShiftWidget />
-        <TasksContent />
-      </div>
+    <AppLayout navItems={employeeNav} title="Consider It Done">
+      <TasksContent />
     </AppLayout>
-  );
-}
-
-function WixLoginBanner() {
-  return (
-    <Card className="border-border shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
-      <CardContent className="p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-            <span className="font-bold text-blue-600">Wix</span>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-blue-900">External Access</p>
-            <p className="text-xs text-blue-700/80">Manage your brainandbodyrecess.com profile</p>
-          </div>
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="bg-white hover:bg-blue-50 border-blue-200 text-blue-700 gap-2"
-          onClick={() => window.open("https://www.brainandbodyrecess.com", "_blank")}
-        >
-          Login to Wix <ExternalLink className="h-3.5 w-3.5" />
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ShiftWidget() {
-  const { data: activeShift, isLoading: loadingShift } = trpc.shifts.active.useQuery();
-  const { data: activeSession, isLoading: loadingSession } = trpc.timeLogs.activeSession.useQuery(undefined, {
-    refetchInterval: 30000,
-  });
-  const utils = trpc.useUtils();
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const clockIn = trpc.timeLogs.clockIn.useMutation({
-    onSuccess: () => {
-      toast.success("Clocked in successfully!");
-      utils.timeLogs.activeSession.invalidate();
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
-
-  const clockOut = trpc.timeLogs.clockOut.useMutation({
-    onSuccess: () => {
-      toast.success("Clocked out successfully!");
-      utils.timeLogs.activeSession.invalidate();
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
-
-  if (loadingShift || loadingSession) return <Skeleton className="h-32 w-full rounded-2xl" />;
-
-  const formatDuration = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const sessionDuration = activeSession ? now - activeSession.clockIn : 0;
-
-  return (
-    <Card className="border-primary/20 bg-primary/5 shadow-sm overflow-hidden">
-      <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className={`h-12 w-12 rounded-full flex items-center justify-center ${activeSession ? "bg-emerald-100 animate-pulse" : "bg-muted"}`}>
-              <Timer className={`h-6 w-6 ${activeSession ? "text-emerald-600" : "text-muted-foreground"}`} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg leading-tight">
-                {activeSession ? "Active Session" : activeShift ? "Ready for Shift" : "No Active Shift"}
-              </h3>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                {activeSession 
-                  ? `Started at ${new Date(activeSession.clockIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                  : activeShift 
-                    ? `Your shift: ${new Date(activeShift.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(activeShift.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : "You can only clock in during your scheduled shift."}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            {activeSession && (
-              <div className="text-right">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Current Time</p>
-                <p className="text-2xl font-mono font-bold text-primary">{formatDuration(sessionDuration)}</p>
-              </div>
-            )}
-
-            {!activeSession ? (
-              <Button 
-                size="lg" 
-                className="h-12 px-8 font-semibold shadow-md" 
-                disabled={!activeShift || clockIn.isPending}
-                onClick={() => clockIn.mutate()}
-              >
-                <Play className="mr-2 h-4 w-4 fill-current" />
-                Start Work
-              </Button>
-            ) : (
-              <Button 
-                size="lg" 
-                variant="destructive"
-                className="h-12 px-8 font-semibold shadow-md" 
-                disabled={clockOut.isPending}
-                onClick={() => clockOut.mutate({ logId: activeSession.id })}
-              >
-                <Square className="mr-2 h-4 w-4 fill-current" />
-                Stop Work
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 
 function TasksContent() {
   const { data: tasks, isLoading, error } = trpc.tasks.myTasks.useQuery();
+  const { data: activeSession } = trpc.timeLogs.activeSession.useQuery();
   const utils = trpc.useUtils();
+
+  const clockInMutation = trpc.timeLogs.clockIn.useMutation({
+    onSuccess: () => {
+      toast.success("Clocked in successfully!");
+      utils.timeLogs.activeSession.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const clockOutMutation = trpc.timeLogs.clockOut.useMutation({
+    onSuccess: () => {
+      toast.success("Clocked out successfully!");
+      utils.timeLogs.activeSession.invalidate();
+      utils.timeLogs.myLogs.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const [elapsed, setElapsed] = useState<string>("00:00:00");
+
+  useEffect(() => {
+    if (!activeSession) return;
+    const interval = setInterval(() => {
+      const diff = Date.now() - activeSession.clockIn;
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setElapsed(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeSession]);
 
   const completeMutation = trpc.tasks.complete.useMutation({
     onMutate: async ({ taskId }) => {
@@ -202,6 +100,8 @@ function TasksContent() {
         <p className="text-muted-foreground text-sm">
           {error.message.includes("Employee record not found")
             ? "Your account hasn't been linked to an employee profile yet. Please contact your administrator."
+            : error.message.includes("active shift")
+            ? "You do not have an active shift at this time. Please check your schedule."
             : "Failed to load tasks. Please try again."}
         </p>
       </div>
@@ -209,7 +109,54 @@ function TasksContent() {
   }
 
   return (
-    <>
+    <div className="space-y-8 max-w-3xl">
+      {/* Clock In/Out Section */}
+      <Card className="border-primary/20 bg-primary/5 shadow-sm overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${activeSession ? "bg-emerald-100 text-emerald-600 animate-pulse" : "bg-muted text-muted-foreground"}`}>
+                <Timer className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{activeSession ? "Currently Working" : "Ready to Start?"}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {activeSession 
+                    ? `Started at ${new Date(activeSession.clockIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                    : "Clock in to start tracking your time."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {activeSession && (
+                <div className="text-2xl font-mono font-bold tracking-tighter tabular-nums">
+                  {elapsed}
+                </div>
+              )}
+              <Button 
+                size="lg" 
+                className={`h-12 px-8 font-bold shadow-md transition-all ${activeSession ? "bg-destructive hover:bg-destructive/90" : "bg-emerald-600 hover:bg-emerald-700"}`}
+                onClick={() => {
+                  if (activeSession) {
+                    clockOutMutation.mutate({ logId: activeSession.id });
+                  } else {
+                    clockInMutation.mutate();
+                  }
+                }}
+                disabled={clockInMutation.isPending || clockOutMutation.isPending}
+              >
+                {activeSession ? (
+                  <><Square className="mr-2 h-4 w-4 fill-current" /> Clock Out</>
+                ) : (
+                  <><Play className="mr-2 h-4 w-4 fill-current" /> Clock In</>
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="border-border shadow-sm">
@@ -307,6 +254,6 @@ function TasksContent() {
           )}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }

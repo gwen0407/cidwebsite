@@ -45,12 +45,6 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
     if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
     else if (user.openId === ENV.ownerOpenId) { values.role = "admin"; updateSet.role = "admin"; }
-    else {
-      // Default new users to admin as per request: "employees added in the database should be the admins"
-      // Note: We might want to refine this if we want a distinction, but the prompt says admins.
-      values.role = "admin";
-      updateSet.role = "admin";
-    }
 
     if (!values.lastSignedIn) values.lastSignedIn = new Date();
     if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
@@ -202,22 +196,34 @@ export async function addShift(data: InsertShift) {
   await db.insert(shifts).values(data);
 }
 
-export async function getActiveShift(employeeId: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const now = Date.now();
-  const result = await db.select().from(shifts)
-    .where(and(
-      eq(shifts.employeeId, employeeId),
-      lte(shifts.startTime, now),
-      gte(shifts.endTime, now)
-    ))
-    .limit(1);
-  return result[0] ?? undefined;
-}
-
 export async function listShiftsByEmployee(employeeId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(shifts).where(eq(shifts.employeeId, employeeId)).orderBy(desc(shifts.startTime));
+  return db.select().from(shifts).where(eq(shifts.employeeId, employeeId));
+}
+
+export async function deleteShift(shiftId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(shifts).where(eq(shifts.id, shiftId));
+}
+
+export async function hasActiveShift(employeeId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+
+  const employeeShifts = await db.select().from(shifts).where(
+    and(
+      eq(shifts.employeeId, employeeId),
+      eq(shifts.dayOfWeek, dayOfWeek)
+    )
+  );
+
+  return employeeShifts.some(shift => {
+    return currentTime >= shift.startTime && currentTime <= shift.endTime;
+  });
 }
