@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from "http";
 import type { User } from "../../drizzle/schema";
 import { verifyToken } from "./auth";
 import * as db from "../db";
-import { COOKIE_NAME } from "../../../shared/const";
+import { COOKIE_NAME } from "../../shared/const";
 import { parse as parseCookies } from "cookie";
 
 export type TrpcContext = {

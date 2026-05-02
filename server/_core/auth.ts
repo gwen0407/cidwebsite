@@ -10,7 +10,7 @@ import { ENV } from "./env";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { SignJWT, jwtVerify } from "jose";
-import { COOKIE_NAME, ONE_YEAR_MS } from "../../../shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const";
 import type { ServerResponse } from "http";
 
 // ---------------------------------------------------------------------------
