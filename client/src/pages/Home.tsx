@@ -62,9 +62,7 @@ export default function Home() {
       <header className="fixed top-0 inset-x-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-md animate-in fade-in duration-500">
         <div className="container flex h-16 items-center justify-between">
           <a href="/" className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <CheckCircle2 className="h-4.5 w-4.5 text-primary-foreground" />
-            </div>
+            <img src="/logo.png" alt="Consider It Done Logo" className="h-8 w-8 rounded-lg object-contain" />
             <span className="font-semibold text-base tracking-tight">Consider It Done</span>
           </a>
 

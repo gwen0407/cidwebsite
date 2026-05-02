@@ -73,9 +73,7 @@ function AppLayoutInner({ children, navItems, title }: AppLayoutProps) {
             </button>
             {!isCollapsed && (
               <div className="flex items-center gap-2 min-w-0">
-                <div className="h-6 w-6 rounded-md bg-sidebar-primary flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-sidebar-primary-foreground" />
-                </div>
+                <img src="/logo.png" alt="Logo" className="h-6 w-6 rounded-md object-contain shrink-0" />
                 <span className="font-semibold text-sm text-sidebar-foreground truncate">{title}</span>
               </div>
             )}
