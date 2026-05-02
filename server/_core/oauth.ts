@@ -10,6 +10,10 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
+  app.get("/api/health", (req: Request, res: Response) => {
+    res.send("OK");
+  });
+
   app.get("/api/debug", async (req: Request, res: Response) => {
     const diagnostics = {
       env: {
