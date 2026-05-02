@@ -3,7 +3,7 @@
   "buildCommand": "pnpm install && pnpm build",
   "outputDirectory": "client/dist",
   "functions": {
-    "api/index.ts": {
+    "dist/api/index.js": {
       "memory": 1024,
       "maxDuration": 30
     }
@@ -11,7 +11,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/dist/api/index.js"
     },
     {
       "source": "/((?!api/).*)",
