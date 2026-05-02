@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
-import type { User } from "../drizzle/schema";
+import { appRouter } from "./routers.js";
+import type { TrpcContext } from "./_core/context.js";
+import type { User } from "../drizzle/schema.js";
 
 // ---------------------------------------------------------------------------
 // Mock the db module so tests don't need a real database

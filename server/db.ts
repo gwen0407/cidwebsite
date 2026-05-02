@@ -1,8 +1,8 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, and, isNull, lte, gte } from "drizzle-orm";
-import * as schema from "../drizzle/schema";
-import { ENV } from "./_core/env";
+import * as schema from "../drizzle/schema.js";
+import { ENV } from "./_core/env.js";
 import bcrypt from "bcryptjs";
 
 // ---------------------------------------------------------------------------

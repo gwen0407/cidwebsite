@@ -2,15 +2,15 @@
  * Simple email/password authentication using JWT cookies.
  * Replaces Manus OAuth entirely.
  */
-import { router, publicProcedure, authedProcedure } from "./trpc";
-import * as db from "../db";
-import * as schema from "../../drizzle/schema";
+import { router, publicProcedure, authedProcedure } from "./trpc.js";
+import * as db from "../db.js";
+import * as schema from "../../drizzle/schema.js";
 import { eq } from "drizzle-orm";
-import { ENV } from "./env";
+import { ENV } from "./env.js";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { SignJWT, jwtVerify } from "jose";
-import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const.js";
 import type { ServerResponse } from "http";
 
 // ---------------------------------------------------------------------------

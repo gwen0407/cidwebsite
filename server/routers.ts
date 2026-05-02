@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { systemRouter } from "./_core/systemRouter";
-import { adminProcedure, employeeProcedure, router } from "./_core/trpc";
-import { authRouter } from "./_core/auth";
+import { systemRouter } from "./_core/systemRouter.js";
+import { adminProcedure, employeeProcedure, router } from "./_core/trpc.js";
+import { authRouter } from "./_core/auth.js";
 import superjson from "superjson";
 import {
   addEmployee,
@@ -21,7 +21,7 @@ import {
   deleteShift,
   listShiftsByEmployee,
   hasActiveShift,
-} from "./db";
+} from "./db.js";
 
 // ---------------------------------------------------------------------------
 // Routers

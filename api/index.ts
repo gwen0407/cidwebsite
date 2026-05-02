@@ -1,8 +1,8 @@
 import "dotenv/config";
 import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { appRouter } from "../server/routers";
-import { createContext } from "../server/_core/context";
+import { appRouter } from "../server/routers.js";
+import { createContext } from "../server/_core/context.js";
 import superjson from "superjson";
 const app = express();
 app.use(express.json({ limit: "50mb" }));
