@@ -37,10 +37,21 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
+// Determine the backend URL based on the environment
+// For GitHub Pages frontend, use the Vercel backend URL
+const getBackendUrl = () => {
+  // If running on localhost, use relative path (for development)
+  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+    return "/api/trpc";
+  }
+  // For production, use the Vercel backend URL
+  return "https://cidwebsite-qmu8.vercel.app/api/trpc";
+};
+
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: "/api/trpc",
+      url: getBackendUrl(),
       transformer: superjson,
       fetch(input, init) {
         return globalThis.fetch(input, {
