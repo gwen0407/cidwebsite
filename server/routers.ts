@@ -27,7 +27,6 @@ import {
 // Routers
 // ---------------------------------------------------------------------------
 export const appRouter = router({
-  _transformer: superjson,
   system: systemRouter,
   auth: authRouter,
   // -------------------------------------------------------------------------
