@@ -44,8 +44,8 @@ const getBackendUrl = () => {
   if (typeof window !== "undefined" && window.location.hostname === "localhost") {
     return "/api/trpc";
   }
-  // For production, use the Vercel backend URL
-  return "https://cidwebsite-qmu8.vercel.app/api/trpc";
+  // For production, use the current origin's API path
+  return `${window.location.origin}/api/trpc`;
 };
 
 const trpcClient = trpc.createClient({
