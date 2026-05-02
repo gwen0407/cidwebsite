@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { CheckCircle2, LogOut, PanelLeft } from "lucide-react";
+import { CheckCircle2, LogOut, PanelLeft, ExternalLink } from "lucide-react";
 import { useLocation } from "wouter";
 import { LucideIcon } from "lucide-react";
 
@@ -98,6 +98,34 @@ function AppLayoutInner({ children, navItems, title }: AppLayoutProps) {
                 </SidebarMenuItem>
               );
             })}
+
+            <div className="mt-6 mb-2 px-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/40">
+                Tools
+              </span>
+            </div>
+
+            {[
+              { label: "Google Docs", url: "https://docs.google.com", emoji: "📄" },
+              { label: "Quo", url: "https://www.quo.com/", emoji: "🎯" },
+              { label: "Wix", url: "https://www.wix.com", emoji: "✨" },
+              { label: "ChatGPT", url: "https://chatgpt.com", emoji: "🤖" },
+              { label: "GoDaddy", url: "https://www.godaddy.com", emoji: "🌐" },
+            ].map((tool) => (
+              <SidebarMenuItem key={tool.label}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={tool.label}
+                  className="h-10 font-normal transition-all hover:bg-sidebar-accent"
+                >
+                  <a href={tool.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 w-full">
+                    <span className="text-base grayscale group-hover:grayscale-0 transition-all">{tool.emoji}</span>
+                    <span className="text-sidebar-foreground/70 group-hover:text-sidebar-foreground flex-1">{tool.label}</span>
+                    <ExternalLink className="h-3 w-3 text-sidebar-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarContent>
 
