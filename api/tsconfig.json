@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["./**/*", "../server/**/*", "../shared/**/*", "../drizzle/**/*"],
+  "compilerOptions": {
+    "noEmit": false,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": false,
+    "types": ["node"],
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
+  }
+}

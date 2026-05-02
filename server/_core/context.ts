@@ -1,4 +1,4 @@
-import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
+import type { IncomingMessage, ServerResponse } from "http";
 import type { User } from "../../drizzle/schema";
 import { verifyToken } from "./auth";
 import * as db from "../db";
@@ -6,18 +6,17 @@ import { COOKIE_NAME } from "@shared/const";
 import { parse as parseCookies } from "cookie";
 
 export type TrpcContext = {
-  req: CreateExpressContextOptions["req"];
-  res: CreateExpressContextOptions["res"];
+  req: IncomingMessage & { body?: unknown };
+  res: ServerResponse;
   user: User | null;
 };
 
 export async function createContext(
-  opts: CreateExpressContextOptions
+  opts: { req: IncomingMessage & { body?: unknown }; res: ServerResponse }
 ): Promise<TrpcContext> {
   let user: User | null = null;
   try {
-    const headers = opts.req.headers as Record<string, string | undefined>;
-    const cookieHeader = headers["cookie"] ?? "";
+    const cookieHeader = (opts.req.headers["cookie"] as string | undefined) ?? "";
     const cookies = parseCookies(cookieHeader);
     const token = cookies[COOKIE_NAME];
     if (token) {
