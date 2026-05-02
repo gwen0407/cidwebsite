@@ -38,14 +38,10 @@ queryClient.getMutationCache().subscribe(event => {
 });
 
 // Determine the backend URL based on the environment
-// For GitHub Pages frontend, use the Vercel backend URL
 const getBackendUrl = () => {
-  // If running on localhost, use relative path (for development)
-  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
-    return "/api/trpc";
-  }
-  // For production, use the current origin's API path
-  return `${window.location.origin}/api/trpc`;
+  // In production, we must ensure we are hitting the full-stack host (Vercel)
+  // If the frontend is still being served from GitHub Pages, same-origin calls will fail.
+  return "/api/trpc";
 };
 
 const trpcClient = trpc.createClient({

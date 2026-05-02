@@ -3,6 +3,7 @@ import { z } from "zod";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, employeeProcedure, router } from "./_core/trpc";
 import { authRouter } from "./_core/auth";
+import superjson from "superjson";
 import {
   addEmployee,
   assignTask,
@@ -26,6 +27,7 @@ import {
 // Routers
 // ---------------------------------------------------------------------------
 export const appRouter = router({
+  _transformer: superjson,
   system: systemRouter,
   auth: authRouter,
   // -------------------------------------------------------------------------
