@@ -54,7 +54,7 @@ const employeeUser: User = {
   email: "alice@example.com",
   name: "Alice",
   loginMethod: "manus",
-  role: "user",
+  role: "employee",
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
@@ -82,7 +82,7 @@ describe("employees router", () => {
 
   it("non-admin cannot list employees", async () => {
     const caller = appRouter.createCaller(makeCtx(employeeUser));
-    await expect(caller.employees.list()).rejects.toThrow("Admin access required");
+    await expect(caller.employees.list()).rejects.toThrow("You do not have required permission (10002)");
   });
 
   it("admin can add an employee", async () => {
