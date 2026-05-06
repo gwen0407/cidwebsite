@@ -46,6 +46,16 @@ export default function Login() {
     onError: (err) => toast.error(err.message),
   });
 
+  // Redirect if already logged in
+  if (!loading && user) {
+    if (user.role === "admin") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/dashboard";
+    }
+    return null;
+  }
+
   const isPending = loginMutation.isPending || signupMutation.isPending;
 
   const handleSubmit = (e: React.FormEvent) => {
