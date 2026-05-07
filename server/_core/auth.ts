@@ -82,9 +82,24 @@ export const authRouter = router({
       const allUsers = dbConn ? await dbConn.select().from(schema.users) : [];
       const isFirst = allUsers.length === 0;
       const isAdminEmail = ENV.adminEmail && input.email.toLowerCase() === ENV.adminEmail.toLowerCase();
-      const role: "admin" | "user" = isFirst || isAdminEmail ? "admin" : "user";
+      
+      // Check if this email belongs to a pre-created employee record
+      const existingEmployee = await db.getEmployeeByEmail(input.email);
+      
+      let role: "admin" | "employee" | "user" = "user";
+      if (isFirst || isAdminEmail) {
+        role = "admin";
+      } else if (existingEmployee) {
+        role = "employee";
+      }
 
       const user = await db.createUser({ email: input.email, password: input.password, name: input.name, role });
+      
+      // Auto-link employee record if one exists
+      if (existingEmployee) {
+        await db.linkEmployeeToUser(existingEmployee.id, user.id);
+      }
+
       const token = await signToken({ userId: user.id, email: user.email, role: user.role });
       setCookie(ctx.res as unknown as ServerResponse, token);
       return { id: user.id, email: user.email, name: user.name, role: user.role };

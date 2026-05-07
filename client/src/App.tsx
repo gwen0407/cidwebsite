@@ -29,7 +29,27 @@ function EmployeeRoute({ component: Component }: { component: React.ComponentTyp
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!user) { window.location.href = "/login"; return null; }
-  if (user.role !== "admin" && user.role !== "employee") return <NotFound />;
+  
+  if (user.role !== "admin" && user.role !== "employee") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="text-center space-y-4 max-w-md">
+          <h1 className="text-2xl font-bold">Access Denied</h1>
+          <p className="text-muted-foreground">
+            Your account ({user.email}) is currently registered as a standard user. 
+            To access the employee dashboard, an administrator must first add you as an employee.
+          </p>
+          <button 
+            onClick={() => window.location.href = "/"}
+            className="text-primary hover:underline"
+          >
+            Go back to home
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return <Component />;
 }
 

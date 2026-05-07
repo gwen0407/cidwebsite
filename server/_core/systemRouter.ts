@@ -11,4 +11,11 @@ export const systemRouter = router({
     .query(() => ({
       ok: true,
     })),
+  debugSession: publicProcedure.query(async ({ ctx }) => {
+    return {
+      hasUser: !!ctx.user,
+      role: ctx.user?.role ?? null,
+      email: ctx.user?.email ?? null,
+    };
+  }),
 });

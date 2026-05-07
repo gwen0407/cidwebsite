@@ -75,8 +75,16 @@ export default function Login() {
     );
   }
 
+  const debugQuery = trpc.system.debugSession.useQuery(undefined, { enabled: false });
+  const handleDebug = async () => {
+    const res = await debugQuery.refetch();
+    console.log("DEBUG SESSION:", res.data);
+    toast.info(`Session: ${JSON.stringify(res.data)}`);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 gap-4">
+      <Button variant="ghost" size="sm" onClick={handleDebug} className="opacity-10 text-[10px]">Debug Session</Button>
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
