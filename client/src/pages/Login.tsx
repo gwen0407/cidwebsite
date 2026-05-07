@@ -20,16 +20,6 @@ export default function Login() {
   const { user, loading } = useAuth();
   const utils = trpc.useUtils();
 
-  // Redirect if already logged in
-  if (!loading && user) {
-    if (user.role === "admin") {
-      window.location.href = "/admin";
-    } else {
-      window.location.href = "/dashboard";
-    }
-    return null;
-  }
-
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: (data) => {
       utils.auth.me.invalidate();
@@ -73,6 +63,15 @@ export default function Login() {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (!loading && user) {
+    if (user.role === "admin") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/dashboard";
+    }
+    return null;
   }
 
   const debugQuery = trpc.system.debugSession.useQuery(undefined, { enabled: false });

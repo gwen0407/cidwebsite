@@ -100,7 +100,7 @@ function AppLayoutInner({ children, navItems, title }: AppLayoutProps) {
             })}
 
             <div className="mt-6 mb-2 px-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/40">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-sidebar-foreground/70">
                 Tools
               </span>
             </div>
@@ -116,12 +116,12 @@ function AppLayoutInner({ children, navItems, title }: AppLayoutProps) {
                 <SidebarMenuButton
                   asChild
                   tooltip={tool.label}
-                  className="h-10 font-normal transition-all hover:bg-sidebar-accent"
+                  className="h-10 font-normal transition-all hover:bg-sidebar-accent group"
                 >
                   <a href={tool.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 w-full">
-                    <span className="text-base grayscale group-hover:grayscale-0 transition-all">{tool.emoji}</span>
+                    <span className="text-base transition-all">{tool.emoji}</span>
                     <span className="text-sidebar-foreground/70 group-hover:text-sidebar-foreground flex-1">{tool.label}</span>
-                    <ExternalLink className="h-3 w-3 text-sidebar-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ExternalLink className="h-3 w-3 text-sidebar-foreground/50 group-hover:text-sidebar-foreground/70 transition-colors" />
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>

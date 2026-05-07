@@ -8,6 +8,15 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { NavItem } from "@/components/AppLayout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/_core/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const employeeNav: NavItem[] = [
   { icon: LayoutDashboard, label: "My Tasks", path: "/dashboard" },
@@ -22,30 +31,61 @@ export default function EmployeeDashboard() {
   );
 }
 
+function formatHours(h: number | null | undefined): string {
+  if (h == null) return "—";
+  const hrs = Math.floor(h);
+  const mins = Math.round((h - hrs) * 60);
+  if (hrs === 0) return `${mins}m`;
+  if (mins === 0) return `${hrs}h`;
+  return `${hrs}h ${mins}m`;
+}
+
 function TasksContent() {
+  const { user } = useAuth();
   const { data: tasks, isLoading, error } = trpc.tasks.myTasks.useQuery();
   const { data: activeSession } = trpc.timeLogs.activeSession.useQuery();
   const utils = trpc.useUtils();
 
+  const [elapsed, setElapsed] = useState<string>("00:00:00");
+  const [lastSession, setLastSession] = useState<{ hoursWorked: number; clockOut: number } | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   const clockInMutation = trpc.timeLogs.clockIn.useMutation({
     onSuccess: () => {
       toast.success("Clocked in successfully!");
+      setLastSession(null);
       utils.timeLogs.activeSession.invalidate();
     },
     onError: (err) => toast.error(err.message),
   });
 
   const clockOutMutation = trpc.timeLogs.clockOut.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Clocked out successfully!");
+      setLastSession({ hoursWorked: data.hoursWorked ?? 0, clockOut: data.clockOut ?? 0 });
       utils.timeLogs.activeSession.invalidate();
       utils.timeLogs.myLogs.invalidate();
     },
     onError: (err) => toast.error(err.message),
   });
 
-  const [elapsed, setElapsed] = useState<string>("00:00:00");
+  // Check if this is first login (no tasks and no active session and no previous sessions)
+  useEffect(() => {
+    if (!isLoading && tasks !== undefined && !activeSession) {
+      const hasSeenOnboarding = localStorage.getItem("cidOnboardingSeen");
+      if (!hasSeenOnboarding && tasks.length === 0) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [isLoading, tasks, activeSession]);
 
+  const handleOnboardingDismiss = () => {
+    localStorage.setItem("cidOnboardingSeen", "true");
+    setShowOnboarding(false);
+  };
+
+  // Update elapsed time
   useEffect(() => {
     if (!activeSession) return;
     const interval = setInterval(() => {
@@ -57,6 +97,14 @@ function TasksContent() {
     }, 1000);
     return () => clearInterval(interval);
   }, [activeSession]);
+
+  // Update current time for greeting
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const completeMutation = trpc.tasks.complete.useMutation({
     onMutate: async ({ taskId }) => {
@@ -110,6 +158,62 @@ function TasksContent() {
 
   return (
     <div className="space-y-8 max-w-3xl">
+      {/* Greeting Section */}
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold text-foreground">
+          Welcome back, {user?.name?.split(" ")[0] || "there"}!
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          {currentTime.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })} at {currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </p>
+      </div>
+
+      {/* Onboarding Modal */}
+      <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Welcome to Consider It Done!</DialogTitle>
+            <DialogDescription>
+              Here's how to get started with your workflow.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
+                1
+              </div>
+              <div>
+                <p className="font-medium text-sm">Clock in when your shift starts</p>
+                <p className="text-xs text-muted-foreground mt-1">Start tracking your time by clicking the Clock In button below.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
+                2
+              </div>
+              <div>
+                <p className="font-medium text-sm">Complete your assigned tasks</p>
+                <p className="text-xs text-muted-foreground mt-1">Mark tasks as complete as you finish them throughout your shift.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
+                3
+              </div>
+              <div>
+                <p className="font-medium text-sm">Clock out when your shift ends</p>
+                <p className="text-xs text-muted-foreground mt-1">End your session to save your hours worked for the day.</p>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleOnboardingDismiss} className="w-full">
+              Got it!
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Clock In/Out Section */}
       <Card className="border-primary/20 bg-primary/5 shadow-sm overflow-hidden">
         <CardContent className="p-6">
@@ -156,6 +260,25 @@ function TasksContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Session Summary Card (shown after clock out) */}
+      {lastSession && !activeSession && (
+        <Card className="border-emerald-200 bg-emerald-50 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-emerald-900">Session Complete</h3>
+                <p className="text-sm text-emerald-700">
+                  You worked <span className="font-semibold">{formatHours(lastSession.hoursWorked)}</span> in this session.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
