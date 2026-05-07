@@ -19,6 +19,7 @@ export default function Login() {
   const [, navigate] = useLocation();
   const { user, loading } = useAuth();
   const utils = trpc.useUtils();
+  const debugQuery = trpc.system.debugSession.useQuery(undefined, { enabled: false });
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: (data) => {
@@ -57,24 +58,6 @@ export default function Login() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!loading && user) {
-    if (user.role === "admin") {
-      window.location.href = "/admin";
-    } else {
-      window.location.href = "/dashboard";
-    }
-    return null;
-  }
-
-  const debugQuery = trpc.system.debugSession.useQuery(undefined, { enabled: false });
   const handleDebug = async () => {
     const res = await debugQuery.refetch();
     console.log("DEBUG SESSION:", res.data);
