@@ -10,6 +10,13 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+// Error handling middleware
+app.use((err: any, _req: any, res: any, next: any) => {
+  console.error("[API Error]", err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: "Internal server error" });
+});
+
 // API Health Check
 app.get("/api/health", (_req, res) => res.json({ ok: true, source: "vercel-api" }));
 
@@ -25,7 +32,16 @@ app.use(
 
 // 404 fallback for unmatched API routes
 app.use("/api/*", (_req: Request, res: Response) => {
+  console.warn("[API 404]", _req.method, _req.url);
   res.status(404).json({ error: "API route not found" });
+});
+
+// Catch-all error handler
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error("[Unhandled Error]", err);
+  if (!res.headersSent) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 export default app;
