@@ -117,3 +117,8 @@ api/index.js
 
 # Compiled server entrypoint (built by Vercel from server.ts)
 server.js
+
+# Vite build output (built by Vercel from source)
+public/assets/
+public/index.html
+public/__manus__/

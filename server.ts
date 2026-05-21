@@ -2,8 +2,12 @@
  * Vercel serverless entrypoint.
  *
  * Vercel auto-detects server.{js,ts} at the project root and turns it into a
- * serverless function, routing all incoming requests through it.
- * The app.listen() call is detected by Vercel to capture the HTTP server.
+ * serverless function. The app.listen() call is detected by Vercel to capture
+ * the HTTP server.
+ *
+ * Static assets (the Vite-built React SPA) are placed in public/ and served
+ * by Vercel's CDN automatically — express.static() is intentionally omitted
+ * as Vercel ignores it and serves public/ natively.
  */
 import "dotenv/config";
 import express from "express";
@@ -18,10 +22,10 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Health check
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, source: "vercel-server" });
+  res.json({ ok: true });
 });
 
-// tRPC API
+// tRPC API — all auth and data endpoints
 app.use(
   "/api/trpc",
   createExpressMiddleware({
@@ -30,7 +34,7 @@ app.use(
   })
 );
 
-// 404 fallback for unmatched API routes
+// 404 fallback for unmatched /api/* routes
 app.use("/api/*", (req, res) => {
   console.warn("[API 404]", req.method, req.url);
   res.status(404).json({ error: "API route not found" });

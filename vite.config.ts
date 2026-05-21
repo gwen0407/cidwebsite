@@ -16,7 +16,9 @@ export default defineConfig({
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
   base: "/",
   build: {
-    outDir: path.resolve(import.meta.dirname, "client/dist"),
+    // Output to public/ at the project root so Vercel serves static assets
+    // from the public/ directory alongside the Express server entrypoint.
+    outDir: path.resolve(import.meta.dirname, "public"),
     emptyOutDir: true,
     sourcemap: true,
   },
