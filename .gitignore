@@ -114,3 +114,6 @@ client/public/__manus__/version.json
 
 # Compiled serverless function (built by Vercel from api/index.ts)
 api/index.js
+
+# Compiled server entrypoint (built by Vercel from server.ts)
+server.js

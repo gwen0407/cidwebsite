@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development NODE_OPTIONS=--no-deprecation tsx watch server/_core/index.ts",
-    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=client/dist && esbuild api/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/index.js --alias:@shared=./shared",
+    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=client/dist && esbuild server.ts --platform=node --packages=external --bundle --format=esm --outfile=server.js --alias:@shared=./shared",
     "start": "NODE_ENV=production NODE_OPTIONS=--no-deprecation node client/dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
