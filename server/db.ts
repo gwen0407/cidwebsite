@@ -69,6 +69,43 @@ export async function updateUserLastSignedIn(id: number): Promise<void> {
   await db.update(schema.users).set({ lastSignedIn: new Date() }).where(eq(schema.users.id, id));
 }
 
+export async function setPasswordResetToken(email: string, token: string, expiry: Date): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const result = await db
+    .update(schema.users)
+    .set({ passwordResetToken: token, passwordResetExpiry: expiry })
+    .where(eq(schema.users.email, email.toLowerCase()))
+    .returning();
+  return result.length > 0;
+}
+
+export async function getUserByResetToken(token: string): Promise<schema.User | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.passwordResetToken, token))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function resetPasswordWithToken(token: string, newPassword: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const user = await getUserByResetToken(token);
+  if (!user) return false;
+  // Check expiry
+  if (!user.passwordResetExpiry || user.passwordResetExpiry < new Date()) return false;
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await db
+    .update(schema.users)
+    .set({ passwordHash, passwordResetToken: null, passwordResetExpiry: null, updatedAt: new Date() })
+    .where(eq(schema.users.id, user.id));
+  return true;
+}
+
 // ---------------------------------------------------------------------------
 // Employee helpers
 // ---------------------------------------------------------------------------

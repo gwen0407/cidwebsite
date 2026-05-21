@@ -12,6 +12,8 @@ import TimeTracker from "./pages/TimeTracker";
 import AdminPanel from "./pages/AdminPanel";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminTasks from "./pages/AdminTasks";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import { useAuth } from "./_core/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
@@ -121,6 +123,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route path="/dashboard" component={DashboardRoute} />
       <Route path="/dashboard/time" component={TimeTrackerRoute} />
       <Route path="/admin" component={AdminPanelRoute} />

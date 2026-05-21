@@ -12,6 +12,8 @@ import { z } from "zod";
 import { SignJWT, jwtVerify } from "jose";
 import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const.js";
 import type { ServerResponse } from "http";
+import crypto from "crypto";
+import { Resend } from "resend";
 
 // ---------------------------------------------------------------------------
 // JWT helpers
@@ -152,4 +154,82 @@ export const authRouter = router({
     clearCookieFromRes(ctx.res as unknown as ServerResponse);
     return { success: true };
   }),
+
+  /** Request a password reset — sends an email with a reset link */
+  forgotPassword: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input }) => {
+      try {
+        // Always return success to prevent email enumeration
+        const user = await db.getUserByEmail(input.email);
+        if (!user) return { success: true };
+
+        // Generate a secure random token valid for 1 hour
+        const token = crypto.randomBytes(32).toString("hex");
+        const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        await db.setPasswordResetToken(input.email, token, expiry);
+
+        const resetUrl = `${ENV.appUrl}/reset-password?token=${token}`;
+
+        // Send email via Resend if API key is configured
+        if (ENV.resendApiKey) {
+          const resend = new Resend(ENV.resendApiKey);
+          await resend.emails.send({
+            from: "Consider It Done <noreply@considerit-done.com>",
+            to: input.email,
+            subject: "Reset your password",
+            html: `
+              <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                <h2 style="color: #1a1a1a;">Reset your password</h2>
+                <p>Hi ${user.name ?? "there"},</p>
+                <p>We received a request to reset your password for your Consider It Done account.</p>
+                <p>Click the button below to reset your password. This link expires in <strong>1 hour</strong>.</p>
+                <a href="${resetUrl}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;margin:16px 0;">Reset Password</a>
+                <p style="color:#666;font-size:14px;">If you didn't request this, you can safely ignore this email. Your password won't change.</p>
+                <p style="color:#666;font-size:12px;">Or copy this link: ${resetUrl}</p>
+              </div>
+            `,
+          });
+        } else {
+          // Log the reset URL in development when no email provider is configured
+          console.log(`[Password Reset] Token for ${input.email}: ${resetUrl}`);
+        }
+
+        return { success: true };
+      } catch (error) {
+        console.error("[Forgot Password Error]", error);
+        // Still return success to prevent enumeration
+        return { success: true };
+      }
+    }),
+
+  /** Reset password using a valid token */
+  resetPassword: publicProcedure
+    .input(
+      z.object({
+        token: z.string().min(1),
+        newPassword: z.string().min(8, "Password must be at least 8 characters"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const success = await db.resetPasswordWithToken(input.token, input.newPassword);
+      if (!success) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This reset link is invalid or has expired. Please request a new one.",
+        });
+      }
+      return { success: true };
+    }),
+
+  /** Verify that a reset token is valid (without consuming it) */
+  verifyResetToken: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .query(async ({ input }) => {
+      const user = await db.getUserByResetToken(input.token);
+      if (!user || !user.passwordResetExpiry || user.passwordResetExpiry < new Date()) {
+        return { valid: false };
+      }
+      return { valid: true, email: user.email };
+    }),
 });

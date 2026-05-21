@@ -139,6 +139,17 @@ export default function Login() {
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {mode === "login" ? "Sign In" : "Create Account"}
             </Button>
+            {mode === "login" && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")}
+                  className="text-sm text-muted-foreground hover:text-primary underline-offset-4 hover:underline transition-colors"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
           </form>
 
           <div className="mt-4 text-center text-sm text-muted-foreground">
