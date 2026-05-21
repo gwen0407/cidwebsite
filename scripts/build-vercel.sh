@@ -19,11 +19,11 @@ echo "=== Step 3: Build Express serverless function ==="
 mkdir -p .vercel/output/functions/api.func
 node_modules/.bin/esbuild server.ts \
   --platform=node \
-  --packages=external \
   --bundle \
   --format=cjs \
   --outfile=.vercel/output/functions/api.func/index.js \
-  --alias:@shared=./shared
+  --alias:@shared=./shared \
+  --external:pg-native
 
 echo "=== Step 4: Write .vc-config.json for the function ==="
 cat > .vercel/output/functions/api.func/.vc-config.json << 'EOF'
