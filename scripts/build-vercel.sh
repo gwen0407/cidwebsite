@@ -29,7 +29,9 @@ echo "=== Step 4: Write .vc-config.json for the function ==="
 cat > .vercel/output/functions/api.func/.vc-config.json << 'EOF'
 {
   "runtime": "nodejs20.x",
-  "entrypoint": "index.js"
+  "handler": "index.js",
+  "launcherType": "Nodejs",
+  "shouldAddHelpers": true
 }
 EOF
 
