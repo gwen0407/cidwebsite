@@ -11,8 +11,7 @@ echo "=== Step 1: Clean previous output ==="
 rm -rf .vercel/output
 
 echo "=== Step 2: Build Vite SPA into .vercel/output/static ==="
-# Temporarily override the outDir to write directly into .vercel/output/static
-VITE_OUT_DIR=".vercel/output/static" node_modules/.bin/vite build \
+node_modules/.bin/vite build \
   --outDir "$(pwd)/.vercel/output/static" \
   --emptyOutDir
 
@@ -22,7 +21,7 @@ node_modules/.bin/esbuild server.ts \
   --platform=node \
   --packages=external \
   --bundle \
-  --format=esm \
+  --format=cjs \
   --outfile=.vercel/output/functions/api.func/index.js \
   --alias:@shared=./shared
 
@@ -30,10 +29,7 @@ echo "=== Step 4: Write .vc-config.json for the function ==="
 cat > .vercel/output/functions/api.func/.vc-config.json << 'EOF'
 {
   "runtime": "nodejs20.x",
-  "handler": "index.js",
-  "launcherType": "Nodejs",
-  "shouldAddHelpers": true,
-  "shouldAddSourcemapSupport": false
+  "entrypoint": "index.js"
 }
 EOF
 
